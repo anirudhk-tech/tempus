@@ -4,6 +4,7 @@ use anyhow::Result;
 
 mod help;
 mod task;
+mod timer;
 
 pub async fn run(pool: &SqlitePool) -> Result<()> {
     loop {
@@ -40,6 +41,10 @@ pub async fn run(pool: &SqlitePool) -> Result<()> {
             },
             ":complete" => { task::complete(pool, arg).await?; },
             ":reopen" => { task::incomplete(pool, arg).await?; },
+            ":timers" => { timer::list(pool).await?; },
+            ":start" => { timer::start(pool, arg).await?; },
+            ":end" => { timer::end(pool).await?; },
+            ":delete_timer" => { timer::delete(pool, arg).await?; }
             "" => continue,
             _ => {
                 println!("Unknown command: {}", cmd);

@@ -4,10 +4,9 @@ use sqlx::SqlitePool;
 use crossterm::terminal::size as terminal_size;
 
 pub async fn list(pool: &SqlitePool) -> Result<()> {
-    println!("Your Tasks:");
     let tasks = get_tasks(pool).await?;
     if tasks.is_empty() {
-        println!("  No tasks found.");
+        println!("📝  No tasks found.");
     } else {
         let (cols, _) = terminal_size().unwrap_or((80, 20));
         let width = cols as usize;
@@ -42,7 +41,7 @@ pub async fn add(pool: &SqlitePool, arg: &str) -> Result<()> {
     
     add_task(pool, title).await?;
 
-    println!("Task added successfully.");
+    println!("📝  Task added successfully.");
     
 
     Ok(())
@@ -64,7 +63,7 @@ pub async fn complete(pool: &SqlitePool, id: &str) -> Result<()> {
     }
 
     complete_task(pool, true_id).await?;
-    println!("Task marked as completed.");
+    println!("📝  Task marked as completed.");
 
     Ok(())
 }
@@ -85,7 +84,7 @@ pub async fn incomplete(pool: &SqlitePool, id: &str) -> Result<()> {
     }
 
     incomplete_task(pool, true_id).await?;
-    println!("Task marked as incomplete.");
+    println!("📝  Task marked as incomplete.");
 
     Ok(())
 }
@@ -111,7 +110,7 @@ pub async fn edit(pool: &SqlitePool, id: &str, new_title: &str) -> Result<()> {
     }
 
     edit_task(pool, true_id, new_title).await?;
-    println!("Task updated.");
+    println!("📝  Task updated.");
 
     Ok(())
 }
@@ -133,7 +132,7 @@ pub async fn delete(pool: &SqlitePool, id: &str) -> Result<()> {
 
     delete_task(pool, true_id).await?;
 
-    println!("Task deleted successfully.");
+    println!("📝  Task deleted successfully.");
 
     Ok(())
 }

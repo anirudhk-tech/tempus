@@ -9,4 +9,9 @@ pub fn main () {
     println!("      :rename <task_id> <new_name> - Edit a task's name");
     println!("      :complete <task_id> - Mark a task as complete");
     println!("      :reopen <task_id> - Mark a task as incomplete");
+    println!("  Timers");
+    println!("      :timers - List all timers");
+    println!("      :start <note> - Start a new timer with a note");
+    println!("      :end <timer_id> - End a timer by ID");
+    println!("      :delete <timer_id> - Delete a timer by ID");
 }

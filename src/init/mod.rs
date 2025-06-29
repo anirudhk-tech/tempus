@@ -24,5 +24,17 @@ pub async fn main(path: &str) -> Result<SqlitePool> {
     .execute(&pool)
     .await?;
 
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS timers (
+            id         INTEGER PRIMARY KEY,
+            note       TEXT NOT NULL,           
+            start_time TEXT NOT NULL,    -- ISO8601
+            end_time   TEXT              -- NULL until you end
+        );"#,
+    )
+    .execute(&pool)
+    .await?;
+
     Ok(pool)
 }
