@@ -1,14 +1,17 @@
 use sqlx::{SqlitePool, Row};
 use chrono::{Utc, DateTime};
 use crate::models::timer::Timer;
+use crate::ml::load_and_predict;
 
 pub async fn start_timer(pool: &SqlitePool, note: &str) -> Result<i64, sqlx::Error> {
     let start_time = Utc::now().to_rfc3339();
+    let category = load_and_predict(note).map_err(|ml_err| sqlx::Error::Protocol(ml_err.to_string().into()))?;
 
     let result = sqlx::query(
-        "INSERT INTO timers (note, start_time, end_time) VALUES (?, ?, NULL)",
+        "INSERT INTO timers (note, category, start_time, end_time) VALUES (?, ?, ?, NULL)",
     )
     .bind(note)
+    .bind(&category)
     .bind(&start_time)
     .execute(pool)
     .await?;
@@ -41,7 +44,7 @@ pub async fn end_timer(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
 pub async fn get_timers(pool: &SqlitePool) -> Result<Vec<Timer>, sqlx::Error> {
     let rows = sqlx::query(
-        "SELECT id, note, start_time, end_time FROM timers"
+        "SELECT id, note, category, start_time, end_time FROM timers"
     )
     .fetch_all(pool)
     .await?;
@@ -49,6 +52,7 @@ pub async fn get_timers(pool: &SqlitePool) -> Result<Vec<Timer>, sqlx::Error> {
     let timers = rows.into_iter().map(|r| {
         let id: i64 = r.get("id");
         let note: String = r.get("note");
+        let category: String = r.get("category");
         let start_time_str: String = r.get("start_time");
         let end_time_str: Option<String> = r.get("end_time");
 
@@ -64,7 +68,7 @@ pub async fn get_timers(pool: &SqlitePool) -> Result<Vec<Timer>, sqlx::Error> {
                     .with_timezone(&Utc)
             });
 
-        Timer::new(id, note, start_time, end_time)
+        Timer::new(id, note, category, start_time, end_time)
     }).collect();
 
     Ok(timers)

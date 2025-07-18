@@ -13,12 +13,7 @@ pub async fn main(path: &str) -> Result<SqlitePool> {
 
     sqlx::query(
         r#"
-        CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            completed BOOLEAN NOT NULL DEFAULT 0
-        )
+        DROP TABLE IF EXISTS timers;
         "#,
     )
     .execute(&pool)
@@ -28,7 +23,8 @@ pub async fn main(path: &str) -> Result<SqlitePool> {
         r#"
         CREATE TABLE IF NOT EXISTS timers (
             id         INTEGER PRIMARY KEY,
-            note       TEXT NOT NULL,           
+            note       TEXT NOT NULL,  
+            category   TEXT NOT NULL,  -- e.g. "work", "exercise"         
             start_time TEXT NOT NULL,    -- ISO8601
             end_time   TEXT              -- NULL until you end
         );"#,

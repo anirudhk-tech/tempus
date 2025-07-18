@@ -13,9 +13,10 @@ chrono       = { version = "0.4", features = ["serde"] }    # date/time types
 ratatui      = "0.20"                                        # TUI rendering library
 crossterm    = "0.27"                                        # cross-platform terminal I/O
 anyhow       = "1.0"
-linfa        = "0.7"
+linfa        = { version = "0.7", features = ["serde"] }
 linfa-linear = "0.7" 
-linfa-preprocessing = "0.7"
-linfa-logistic = "0.7"
+linfa-preprocessing = { version = "0.7", features = ["serde"] }
+linfa-logistic = { version = "0.7", features = ["serde"] }
 bincode = "2.0"
 ndarray = "0.15"
+

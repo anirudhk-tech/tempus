@@ -36,7 +36,13 @@ pub async fn list(pool: &sqlx::SqlitePool) -> Result<(), sqlx::Error> {
             let (cols, _) = terminal_size().unwrap_or((80, 20));
             let width = cols as usize;
 
-            let left = format!("{} [{} - {}]", t.note, start_display, end_display);
+            let left = format!(
+        "{} ({}) [{} - {}]",
+        t.note,      
+        t.category,   
+        start_display,
+        end_display
+    );
             let right = format!("id: {}", t.id);
 
             let padding = width.saturating_sub(left.chars().count() + right.chars().count());
