@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use crate::models::timer::Timer;
-use crate::storage::sqlite::timer::{start_timer, end_timer, get_timers, delete_timer};
+use crate::storage::sqlite::timer::{delete_timer, end_timer, get_day_timers, get_timers, start_timer};
 use crossterm::terminal::size as terminal_size;
 use chrono::{Local};
 
@@ -77,5 +79,46 @@ pub async fn delete(pool: &sqlx::SqlitePool, id: &str) -> Result<(), sqlx::Error
     delete_timer(pool, true_id).await?;
 
     println!("⏱  Timer deleted.");
+    Ok(())
+}
+
+pub async fn show_day(pool: &sqlx::SqlitePool) -> Result<(), sqlx::Error> {
+    let today = Local::now().date_naive();
+    let date_str = today.format("%Y-%m-%d").to_string();
+
+    let timers: Vec<Timer> = get_day_timers(pool, &date_str).await?;
+
+    if timers.is_empty() {
+        println!("⏱  No timers found for today.");
+    } else {
+        let mut category_durations: HashMap<String, i64> = HashMap::new(); // minutes
+
+        for timer in &timers {
+            if let Some(end_utc) = &timer.end_time {
+                let start = timer.start_time.with_timezone(&Local);
+                let end = end_utc.with_timezone(&Local);
+
+                let duration = end.signed_duration_since(start).num_minutes();
+                *category_durations.entry(timer.category.clone()).or_default() += duration;
+            }
+        }
+
+        println!("\n🧱 Time Spent Today by Category:\n");
+
+        let max_len = category_durations
+            .values()
+            .copied()
+            .max()
+            .unwrap_or(1);
+
+        for (category, minutes) in category_durations {
+            let bar_len = (minutes * 20 / max_len).max(1) as usize; // scale to 20 chars
+            let bar = "█".repeat(bar_len);
+            let hours = minutes / 60;
+            let rem_minutes = minutes % 60;
+            println!("{:<10} | {:<20} {:>2}h {:>2}m", category, bar, hours, rem_minutes);
+        }
+    }
+
     Ok(())
 }

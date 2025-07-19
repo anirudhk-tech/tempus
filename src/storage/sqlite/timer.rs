@@ -82,3 +82,46 @@ pub async fn delete_timer(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error>
 
     Ok(())
 }
+
+pub async fn get_day_timers(pool: &SqlitePool, date: &str) -> Result<Vec<Timer>, sqlx::Error> {
+    let rows = sqlx::query(
+        "SELECT id, note, category, start_time, end_time \
+         FROM timers WHERE DATE(start_time) = ?",
+    )
+    .bind(date)
+    .fetch_all(pool)
+    .await?;
+
+    let timers = rows.into_iter()
+        .filter_map(|r| {
+            let id:    i64             = r.get("id");
+            let note:  String          = r.get("note");
+            let cat:   String          = r.get("category");
+            let s:     String          = r.get("start_time");
+            let e_opt: Option<String>  = r.get("end_time");
+
+            let start = match DateTime::parse_from_rfc3339(&s) {
+                Ok(dt) => dt.with_timezone(&Utc),
+                Err(err) => {
+                    eprintln!("⚠️ skip id={} bad start `{}`: {}", id, s, err);
+                    return None;
+                }
+            };
+
+            let end = match e_opt {
+                Some(e) => match DateTime::parse_from_rfc3339(&e) {
+                    Ok(dt) => Some(dt.with_timezone(&Utc)),
+                    Err(err) => {
+                        eprintln!("⚠️ skip id={} bad end `{}`: {}", id, e, err);
+                        return None;
+                    }
+                },
+                None => None,
+            };
+
+            Some(Timer::new(id, note, cat, start, end))
+        })
+        .collect();
+
+    Ok(timers)
+}

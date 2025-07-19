@@ -7,4 +7,5 @@ pub fn main () {
     println!("      :start <note> - Start a new timer with a note");
     println!("      :end <timer_id> - End a timer by ID");
     println!("      :delete <timer_id> - Delete a timer by ID");
+    println!("      :show - Show stats for today");
 }

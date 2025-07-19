@@ -11,13 +11,13 @@ pub async fn main(path: &str) -> Result<SqlitePool> {
         .connect_with(opts)
         .await?;
 
-    sqlx::query(
-        r#"
-        DROP TABLE IF EXISTS timers;
-        "#,
-    )
-    .execute(&pool)
-    .await?;
+    // sqlx::query(
+    //     r#"
+    //     DROP TABLE IF EXISTS timers;
+    //     "#,
+    // )
+    // .execute(&pool)
+    // .await?;
 
     sqlx::query(
         r#"

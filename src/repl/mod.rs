@@ -31,7 +31,8 @@ pub async fn run(pool: &SqlitePool) -> Result<()> {
             ":timers" => { timer::list(pool).await?; },
             ":start" => { timer::start(pool, arg).await?; },
             ":end" => { timer::end(pool).await?; },
-            ":delete" => { timer::delete(pool, arg).await?; }
+            ":delete" => { timer::delete(pool, arg).await?; },
+            ":show" => { timer::show_day(pool).await?; },
             "" => continue,
             _ => {
                 println!("Unknown command: {}", cmd);
